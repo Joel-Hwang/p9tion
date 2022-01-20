@@ -48,7 +48,7 @@
     <script>
         window.onload = () => {
             let btnSpeak = document.querySelector('#speak');
-            btnSpeak.onclick = speakClick;
+            btnSpeak.addEventListener('click',speakClick);
             recorder.init();
         }
 
@@ -74,7 +74,7 @@
             score.textContent = 'your score : ' + ((point / quiz.length) * 100);
         }
 
-        let speakClick = e => {
+        function speakClick(e){
 
             if (spchRecog.speaking) {
                 //updateResult();
@@ -93,17 +93,17 @@
         }
 
         let spchRecog = {
-            mic: null,
+            //mic: null,
             speaking: false,
             result: '',
             init: () => {
-                spchRecog.mic = new webkitSpeechRecognition();
-                spchRecog.mic.continuous = true;
-                spchRecog.mic.interimResults = true;
-                spchRecog.mic.lang = /*'ko-KR'*/'en-US';
+                let mic = new webkitSpeechRecognition();
+                mic.continuous = true;
+                mic.interimResults = true;
+                mic.lang = /*'ko-KR'*/'en-US';
                 //spchRecog.mic.onresult = spchRecog.onresult;
-                spchRecog.mic.onend = spchRecog.onend;
-                spchRecog.mic.onresult = function (e) {
+                mic.onend = function(e){};
+                mic.onresult = function (e) {
                     var b = '', c = false;
                     for (var i = e.resultIndex; i < e.results.length; ++i) {
                         b += e.results[i][0].transcript;
@@ -112,7 +112,7 @@
                     document.querySelector('#title').textContent = 'here : ' + b;
 
                 };
-                spchRecog.mic.start();
+                mic.start();
 
             },
             onresult: (e) => {
