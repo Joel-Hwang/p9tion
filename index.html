@@ -117,6 +117,7 @@
             },
             onend: () => {
                 console.log(spchRecog.result);
+                spchRecog.mic.start();
             },
             start: () => {
                 spchRecog.mic.start();
