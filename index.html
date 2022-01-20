@@ -77,8 +77,8 @@
         let speakClick = e => {
 
             if (spchRecog.speaking) {
-                updateResult();
-                spchRecog.stop();
+                //updateResult();
+                //spchRecog.stop();
                 recorder.stop();
                 e.target.textContent = "🎤 Click and speak the sentece.";
                 getScore();
