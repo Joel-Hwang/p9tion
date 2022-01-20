@@ -49,7 +49,6 @@
         window.onload = () => {
             let btnSpeak = document.querySelector('#speak');
             btnSpeak.onclick = speakClick;
-            spchRecog.init();
             recorder.init();
         }
 
@@ -76,7 +75,7 @@
         }
 
         let speakClick = e => {
-            
+           
             if (spchRecog.speaking) {
                 updateResult();
                 spchRecog.stop();
@@ -84,6 +83,7 @@
                 e.target.textContent = "🎤 Click and speak the sentece.";
                 getScore();
             } else {
+                spchRecog.init();
                 spchRecog.start();
                 recorder.start();
                 e.target.textContent = "🎤 Speaking";
