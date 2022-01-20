@@ -84,7 +84,7 @@
                 getScore();
             } else {
                 spchRecog.init();
-                spchRecog.start();
+                //spchRecog.start();
                 recorder.start();
                 e.target.textContent = "🎤 Speaking";
             }
@@ -103,6 +103,7 @@
                 spchRecog.mic.lang = /*'ko-KR'*/'en-US';
                 spchRecog.mic.onresult = spchRecog.onresult;
                 spchRecog.mic.onend = spchRecog.onend;
+                spchRecog.mic.start();
 
             },
             onresult: (e) => {
@@ -117,7 +118,7 @@
             },
             onend: () => {
                 console.log(spchRecog.result);
-                spchRecog.mic.start();
+                //spchRecog.mic.start();
             },
             start: () => {
                 spchRecog.mic.start();
