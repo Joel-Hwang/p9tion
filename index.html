@@ -83,7 +83,31 @@
                 e.target.textContent = "🎤 Click and speak the sentece.";
                 getScore();
             } else {
-                spchRecog.init();
+                var mic = new webkitSpeechRecognition();
+                mic.continuous = true;
+                mic.interimResults = true;
+                mic.lang = /*'ko-KR'*/'en-US';
+                //spchRecog.mic.onresult = spchRecog.onresult;
+                mic.onend = function(e){
+                    console.log('recog end');
+                    document.querySelector('#title').textContent += 'recog end';
+                };
+                mic.onresult = function (e) {
+                    console.log('recog result');
+                    document.querySelector('#title').textContent += 'recog result';
+                    var b = '', c = false;
+                    for (var i = e.resultIndex; i < e.results.length; ++i) {
+                        b += e.results[i][0].transcript;
+                        c = e.results[i].isFinal;
+                    }
+                    document.querySelector('#title').textContent = 'here : ' + b;
+
+                };
+                mic.start();
+                console.log('recog start');
+                document.querySelector('#title').textContent += 'recog start';
+
+                //spchRecog.init();
                 //spchRecog.start();
                 recorder.start();
                 e.target.textContent = "🎤 Speaking";
@@ -97,7 +121,7 @@
             speaking: false,
             result: '',
             init: () => {
-                let mic = new webkitSpeechRecognition();
+                var mic = new webkitSpeechRecognition();
                 mic.continuous = true;
                 mic.interimResults = true;
                 mic.lang = /*'ko-KR'*/'en-US';
