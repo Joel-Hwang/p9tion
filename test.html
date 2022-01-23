@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj"
+        crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <div id="log"></div>
+
+    <button id="speak"> Speak </button>
+    <div class="card-body"></div>
+    <script>
+        window.onload = () => {
+            let btnSpeak = document.querySelector('#speak');
+            btnSpeak.onclick = speakClick;
+            recorder.init();
+            spchRecog.init();
+        }
+
+       
+        let speakClick = e => {
+            if(recorder.mediaRecorder.state == 'recording') recorder.stop();
+            else recorder.start();
+            spchRecog.start();
+            e.target.textContent = "🎤 Speaking";
+
+        }
+
+        let spchRecog = {
+            mic: null,
+            result: '',
+            init: () => {
+                spchRecog.mic = new webkitSpeechRecognition();
+                spchRecog.mic.continuous = true;
+                spchRecog.mic.interimResults = true;
+                spchRecog.mic.lang = /*'ko-KR'*/'en-US';
+                spchRecog.mic.onresult = spchRecog.onresult;
+                spchRecog.mic.onend = spchRecog.onend;
+
+            },
+            onresult: (e) => {
+                var b = '', c = false;
+                for (var i = e.resultIndex; i < e.results.length; ++i) {
+                    b += e.results[i][0].transcript;
+                    c = e.results[i].isFinal;
+                }
+                spchRecog.result = b;
+                document.querySelector('#log').textContent += 'here : '+spchRecog.result;
+            },
+            onend: () => {
+                console.log(spchRecog.result);
+            },
+            start: () => {
+                try{
+                    
+                    spchRecog.mic.start();
+                    speaking = true;
+                }catch(e) {
+                    spchRecog.mic.stop();
+                }
+            },
+            stop: () => {
+                spchRecog.mic.stop();
+                speaking = false;
+            },
+        
+        }
+
+
+        let recorder = {
+            mediaRecorder:{},
+            chunks : [],
+            init : () => {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)(); // 오디오 컨텍스트 정의
+                const analyser = audioCtx.createAnalyser();
+                //const distortion = audioCtx.createWaveShaper()
+                //const gainNode = audioCtx.createGain()
+                //const biquadFilter = audioCtx.createBiquadFilter()
+                navigator.mediaDevices.getUserMedia({audio: true,}).then((stream) => {
+                    recorder.mediaRecorder = new MediaRecorder(stream);
+                    recorder.mediaRecorder.onstop = recorder.addPlayer;
+
+                    recorder.mediaRecorder.ondataavailable = (e) => {
+                        recorder.chunks.push(e.data);
+                    }
+                });
+            },
+            start : () => {
+                recorder.mediaRecorder.start();
+                console.log(recorder.mediaRecorder.state);
+                console.log("recorder started");
+            },
+            stop : () => {
+                recorder.mediaRecorder.stop();
+                console.log(recorder.mediaRecorder.state);
+                console.log("recorder stopped");
+            },
+            addPlayer : (e) => {
+                console.log("data available after MediaRecorder.stop() called.");
+                const clipContainer = document.createElement("article");
+                const clipLabel = document.createElement("p");
+                const audio = document.createElement("audio");
+                clipContainer.classList.add("clip");
+                audio.setAttribute("controls", "");
+                audio.style.width = '250px';
+                clipContainer.appendChild(audio);
+                audio.controls = true;
+                const blob = new Blob(recorder.chunks, {
+                    type: "audio/ogg codecs=opus",
+                });
+                recorder.chunks = [];
+                const audioURL = URL.createObjectURL(blob);
+                audio.src = audioURL;
+                console.log("recorder stopped");
+                document.querySelector('.card-body').appendChild(clipContainer);
+            },
+        
+        }
+
+
+        /*
+        
+        const clipContainer = document.createElement("article");
+            const clipLabel = document.createElement("p");
+            const audio = document.createElement("audio");
+            const deleteButton = document.createElement("button");
+
+            clipContainer.classList.add("clip");
+            audio.setAttribute("controls", "");
+
+            clipContainer.appendChild(audio);
+            document.querySelector('#recordAras').appendChild(clipContainer);
+        
+        */
+    </script>
+
+</body>
+
+</html>
