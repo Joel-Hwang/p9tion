@@ -48,8 +48,7 @@
     <script>
         window.onload = () => {
             let btnSpeak = document.querySelector('#speak');
-            btnSpeak.onclick = speakClick;
-            spchRecog.init();
+            btnSpeak.addEventListener('click',speakClick);
             recorder.init();
         }
 
@@ -75,16 +74,41 @@
             score.textContent = 'your score : ' + ((point / quiz.length) * 100);
         }
 
-        let speakClick = e => {
-            
+        function speakClick(e){
+
             if (spchRecog.speaking) {
-                updateResult();
-                spchRecog.stop();
+                //updateResult();
+                //spchRecog.stop();
                 recorder.stop();
                 e.target.textContent = "🎤 Click and speak the sentece.";
                 getScore();
             } else {
-                spchRecog.start();
+                var mic = new webkitSpeechRecognition();
+                mic.continuous = true;
+                mic.interimResults = true;
+                mic.lang = /*'ko-KR'*/'en-US';
+                //spchRecog.mic.onresult = spchRecog.onresult;
+                mic.onend = function(e){
+                    console.log('recog end');
+                    document.querySelector('#title').textContent += 'recog end';
+                };
+                mic.onresult = function (e) {
+                    console.log('recog result');
+                    document.querySelector('#title').textContent += 'recog result';
+                    var b = '', c = false;
+                    for (var i = e.resultIndex; i < e.results.length; ++i) {
+                        b += e.results[i][0].transcript;
+                        c = e.results[i].isFinal;
+                    }
+                    document.querySelector('#title').textContent = 'here : ' + b;
+
+                };
+                mic.start();
+                console.log('recog start');
+                document.querySelector('#title').textContent += 'recog start';
+
+                //spchRecog.init();
+                //spchRecog.start();
                 recorder.start();
                 e.target.textContent = "🎤 Speaking";
             }
@@ -93,16 +117,26 @@
         }
 
         let spchRecog = {
-            mic: null,
+            //mic: null,
             speaking: false,
             result: '',
             init: () => {
-                spchRecog.mic = new webkitSpeechRecognition();
-                spchRecog.mic.continuous = true;
-                spchRecog.mic.interimResults = true;
-                spchRecog.mic.lang = /*'ko-KR'*/'en-US';
-                spchRecog.mic.onresult = spchRecog.onresult;
-                spchRecog.mic.onend = spchRecog.onend;
+                var mic = new webkitSpeechRecognition();
+                mic.continuous = true;
+                mic.interimResults = true;
+                mic.lang = /*'ko-KR'*/'en-US';
+                //spchRecog.mic.onresult = spchRecog.onresult;
+                mic.onend = function(e){};
+                mic.onresult = function (e) {
+                    var b = '', c = false;
+                    for (var i = e.resultIndex; i < e.results.length; ++i) {
+                        b += e.results[i][0].transcript;
+                        c = e.results[i].isFinal;
+                    }
+                    document.querySelector('#title').textContent = 'here : ' + b;
+
+                };
+                mic.start();
 
             },
             onresult: (e) => {
@@ -112,19 +146,20 @@
                     c = e.results[i].isFinal;
                 }
                 spchRecog.result = b;
-                document.querySelector('#title').textContent = 'here : '+spchRecog.result;
+                document.querySelector('#title').textContent = 'here : ' + spchRecog.result;
                 updateResult();
             },
             onend: () => {
                 console.log(spchRecog.result);
+                //spchRecog.mic.start();
             },
             start: () => {
                 spchRecog.mic.start();
                 speaking = true;
             },
             stop: () => {
-                spchRecog.mic.stop();
-                speaking = false;
+                //spchRecog.mic.stop();
+                //speaking = false;
             },
             toggle: () => {
                 if (spchRecog.speaking) {
@@ -139,15 +174,15 @@
 
 
         let recorder = {
-            mediaRecorder:{},
-            chunks : [],
-            init : () => {
+            mediaRecorder: {},
+            chunks: [],
+            init: () => {
                 const audioCtx = new (window.AudioContext || window.webkitAudioContext)(); // 오디오 컨텍스트 정의
                 const analyser = audioCtx.createAnalyser();
                 //const distortion = audioCtx.createWaveShaper()
                 //const gainNode = audioCtx.createGain()
                 //const biquadFilter = audioCtx.createBiquadFilter()
-                navigator.mediaDevices.getUserMedia({audio: true,}).then((stream) => {
+                navigator.mediaDevices.getUserMedia({ audio: true, }).then((stream) => {
                     recorder.mediaRecorder = new MediaRecorder(stream);
                     recorder.mediaRecorder.onstop = recorder.addPlayer;
 
@@ -156,17 +191,17 @@
                     }
                 });
             },
-            start : () => {
+            start: () => {
                 recorder.mediaRecorder.start();
                 console.log(recorder.mediaRecorder.state);
                 console.log("recorder started");
             },
-            stop : () => {
+            stop: () => {
                 recorder.mediaRecorder.stop();
                 console.log(recorder.mediaRecorder.state);
                 console.log("recorder stopped");
             },
-            addPlayer : (e) => {
+            addPlayer: (e) => {
                 console.log("data available after MediaRecorder.stop() called.");
                 const clipContainer = document.createElement("article");
                 const clipLabel = document.createElement("p");
@@ -185,7 +220,7 @@
                 console.log("recorder stopped");
                 document.querySelector('.card-body').appendChild(clipContainer);
             },
-        
+
         }
 
 
