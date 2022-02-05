@@ -24,10 +24,11 @@
         </div>
         <div class="jumbotron jumbotron-fluid">
             <div class="container">
-                <h1 class="display-3" id="result"></h1>
-                <hr class="my-2">
-                <h4 id="score">your Score : 100</h4>
+                
+                <h2 id="result" style="display: inline;"></h2>
+                <h4 id="score">&nbsp;</h4>
                 <p class="lead">
+                    <span id="speakingFace" style="font-size: 1.5rem;"></span>
                     <a class="btn btn-primary btn-lg" role="button" id="speak">🎤 Click and speak the sentece.</a>
                 </p>
             </div>
@@ -38,6 +39,7 @@
     </div>
 
     <script>
+        let speakFaceId = 0;
         window.onload = () => {
             let btnSpeak = document.querySelector('#speak');
             btnSpeak.onclick = speakClick;
@@ -45,6 +47,15 @@
             recorder.init();
         }
 
+        let getSpeakingFace = () => {
+            let faces = ['😀','😐','😶','😮','🤨','😦','😬'];
+            let idx = 0;
+            let id = setInterval(()=>{
+                document.querySelector('#speakingFace').textContent = faces[idx++%faces.length];
+            },70);
+            return id;
+            
+        }
         let updateResult = () => {
             let lblResult = document.querySelector("#result");
             lblResult.textContent = spchRecog.result;
@@ -64,7 +75,7 @@
             }
 
             let score = document.querySelector('#score');
-            score.textContent = 'your score : ' + ((point / quiz.length) * 100);
+            score.textContent = 'your score : ' + ((point / quiz.length) * 100).toFixed(0);
         }
 
         let speakClick = e => {
@@ -74,11 +85,14 @@
                 spchRecog.stop();
                 recorder.stop();
                 e.target.textContent = "🎤 Click and speak the sentece.";
+                clearInterval(speakFaceId);
+                document.querySelector('#speakingFace').textContent = '';
                 getScore();
             } else {
                 spchRecog.start();
                 recorder.start();
                 e.target.textContent = "🎤 Speaking";
+                speakFaceId = getSpeakingFace();
             }
             spchRecog.speaking = !spchRecog.speaking;
 
